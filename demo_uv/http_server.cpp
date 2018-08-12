@@ -45,7 +45,7 @@ void echo_write(uv_write_t *req, int status) {
 void echo_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf) {
     if (nread < 0) {
         if (nread != UV_EOF) {
-            fprintf(stderr, "read error %s\n", uv_err_name(nread));
+            fprintf(stderr, "read error %s\n", uv_err_name((int)nread));
         }
         uv_close((uv_handle_t*) client, NULL);
     } else if (nread > 0) {

@@ -21,6 +21,8 @@ static uv_loop_t* loop;
 static uv_tcp_t client;
 static std::string flag;
 static NetIOBuffer iobuffer;
+static int is_connected;   // 1 conncected 0 connecting -1 fail
+uv_timer_t timerevent;
 
 static void alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf);
 static void read_cb(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf);
@@ -39,13 +41,16 @@ static void free_write_req(uv_write_t *req) {
     free(wr);
 }
 
+
+static int counter = 0;
+
 void parse_cb(MSG* msg, void* userdata) {
     int main_cmd = msg->main_cmd;
     int assi_cmd = msg->assi_cmd;
     char* buf = msg->buf;
     
     reponse_a_data * reponse = reinterpret_cast<reponse_a_data*>(buf);
-    printf("main_id: %d, ass_id: %d, code: %d, c: %d\n", main_cmd, assi_cmd, reponse->code, reponse->c);
+    printf("[%d] main_id: %d, ass_id: %d, code: %d, c: %d\n", counter++, main_cmd, assi_cmd, reponse->code, reponse->c);
 }
 
 void alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
@@ -56,12 +61,14 @@ void alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
 void read_cb(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
     if (nread < 0) {
         if (nread != UV_EOF) {
-            fprintf(stderr, "read error %s\n", uv_err_name(nread));
+            fprintf(stderr, "read error %s\n", uv_err_name((int)nread));
         }
         uv_close((uv_handle_t*)&client, NULL);
+    } else if (nread == 0) {
+        fprintf(stderr, "error %s\n", uv_err_name((int)nread));
     }
     else {
-        iobuffer.parse(buf->base, nread, parse_cb, NULL);
+        iobuffer.parse(buf->base, (int)nread, parse_cb, NULL);
     }
     
     if (buf->base) {
@@ -70,6 +77,7 @@ void read_cb(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 }
 
 void write_cb(uv_write_t* req, int status) {
+
     free(req);
     
 }
@@ -82,12 +90,16 @@ void entry(void *arg) {
         data.b = 20;
         iobuffer.send(100, 200, (void*)&data, sizeof(data), [](NetPacket * pkt) -> int {
             uv_write_t *req = (uv_write_t*)malloc(sizeof(uv_write_t));
-            uv_buf_t newbuf = uv_buf_init(pkt->Buffer(), pkt->BufferSize());
-            int r = uv_write(req, (uv_stream_t*)&client, &newbuf, 1, write_cb);
+            //uv_buf_t newbuf = uv_buf_init(pkt->Buffer(), pkt->BufferSize());
+            uv_buf_t *buf_t = (uv_buf_t*)::malloc(sizeof(uv_buf_t));
+            buf_t->base = (char*)::malloc(sizeof(char) * pkt->BufferSize());
+            buf_t->len = pkt->BufferSize();
+            memcpy(buf_t->base, pkt->Buffer(), pkt->BufferSize());
+            int r = uv_write(req, (uv_stream_t*)&client, buf_t, 1, write_cb);
             return r;
         });
         
-        sleep(1);
+        sleep(0.5);
     }
 }
 
@@ -96,13 +108,42 @@ void connect_cb(uv_connect_t* req, int status) {
     {
         int ret = uv_read_start(req->handle, alloc_cb, read_cb);
         printf("[%d]", ret);
-        uv_thread_t tid;
-        uv_thread_create(&tid, entry, NULL);
+        
+        //uv_thread_t tid;
+        //uv_thread_create(&tid, entry, NULL);
+        
+        is_connected = 1;
     }
     else
     {
+        is_connected = -1;
         printf("socket error. [%d]\n", status);
     }
+}
+
+void timer_cb(uv_timer_t* handle) {
+    if (is_connected == 0) {
+        return ;
+    }
+    
+    if (is_connected == -1) {
+        uv_timer_stop(&timerevent);
+        return ;
+    }
+    
+    reqest_a_data data;
+    data.a = 10;
+    data.b = 20;
+    iobuffer.send(100, 200, (void*)&data, sizeof(data), [](NetPacket * pkt) -> int {
+        uv_write_t *req = (uv_write_t*)malloc(sizeof(uv_write_t));
+        //uv_buf_t newbuf = uv_buf_init(pkt->Buffer(), pkt->BufferSize());
+        uv_buf_t *buf_t = (uv_buf_t*)::malloc(sizeof(uv_buf_t));
+        buf_t->base = (char*)::malloc(sizeof(char) * pkt->BufferSize());
+        buf_t->len = pkt->BufferSize();
+        memcpy(buf_t->base, pkt->Buffer(), pkt->BufferSize());
+        int r = uv_write(req, (uv_stream_t*)&client, buf_t, 1, write_cb);
+        return r;
+    });
 }
 
 int client_run(int argc, char ** args)
@@ -115,7 +156,7 @@ int client_run(int argc, char ** args)
     
     loop = uv_loop_new();
     uv_tcp_init(loop, &client);
-
+    
     uv_connect_t* connect_req = (uv_connect_t*)::malloc(sizeof(uv_connect_t));
     sockaddr_in addr;
     int r = uv_ip4_addr("127.0.0.1", 7000, &addr);
@@ -123,6 +164,9 @@ int client_run(int argc, char ** args)
     if (r != 0) {
     
     }
+
+    uv_timer_init(loop, &timerevent);
+    uv_timer_start(&timerevent, timer_cb, 1000, 10);
     
     r = uv_run(loop, UV_RUN_DEFAULT);
     if (r != 0) {

@@ -177,37 +177,37 @@
 			isa = PBXGroup;
 			children = (
 				2A90F323211F2CC7001C7295 /* TCPServer.h */,
+				2A90F33B211F2CC7001C7295 /* TCPServer.cpp */,
 				2A90F324211F2CC7001C7295 /* net_reactor.cpp */,
+				2A90F33D211F2CC7001C7295 /* net_reactor.hpp */,
 				2A90F325211F2CC7001C7295 /* net_packet.h */,
+				2A90F332211F2CC7001C7295 /* net_packet.cpp */,
 				2A90F326211F2CC7001C7295 /* Utils.h */,
-				2A90F327211F2CC7001C7295 /* log4z.h */,
 				2A90F328211F2CC7001C7295 /* Utils.cpp */,
-				2A90F329211F2CC7001C7295 /* threadpool.h */,
+				2A90F327211F2CC7001C7295 /* log4z.h */,
+				2A90F336211F2CC7001C7295 /* log4z.cpp */,
+				2A90F334211F2CC7001C7295 /* net_object.hpp */,
+				2A90F335211F2CC7001C7295 /* net_session.hpp */,
 				2A90F32A211F2CC7001C7295 /* net_object.cpp */,
 				2A90F32B211F2CC7001C7295 /* net_session.cpp */,
 				2A90F32C211F2CC7001C7295 /* net_request.hpp */,
-				2A90F32D211F2CC7001C7295 /* net_response.cpp */,
-				2A90F32E211F2CC7001C7295 /* lock.h */,
-				2A90F32F211F2CC7001C7295 /* net_cookie.hpp */,
-				2A90F330211F2CC7001C7295 /* net_cache_queue.cpp */,
-				2A90F331211F2CC7001C7295 /* queue.c */,
-				2A90F332211F2CC7001C7295 /* net_packet.cpp */,
-				2A90F333211F2CC7001C7295 /* TCPClient.cpp */,
-				2A90F334211F2CC7001C7295 /* net_object.hpp */,
-				2A90F335211F2CC7001C7295 /* net_session.hpp */,
-				2A90F336211F2CC7001C7295 /* log4z.cpp */,
 				2A90F337211F2CC7001C7295 /* net_request.cpp */,
 				2A90F338211F2CC7001C7295 /* net_response.hpp */,
+				2A90F32D211F2CC7001C7295 /* net_response.cpp */,
+				2A90F340211F2CC7001C7295 /* lock.cpp */,
+				2A90F32E211F2CC7001C7295 /* lock.h */,
+				2A90F32F211F2CC7001C7295 /* net_cookie.hpp */,
 				2A90F339211F2CC7001C7295 /* net_cookie.cpp */,
-				2A90F33A211F2CC7001C7295 /* threadpool.c */,
-				2A90F33B211F2CC7001C7295 /* TCPServer.cpp */,
 				2A90F33C211F2CC7001C7295 /* net_cache_queue.h */,
-				2A90F33D211F2CC7001C7295 /* net_reactor.hpp */,
+				2A90F330211F2CC7001C7295 /* net_cache_queue.cpp */,
+				2A90F341211F2CC7001C7295 /* queue.h */,
+				2A90F331211F2CC7001C7295 /* queue.c */,
+				2A90F342211F2CC7001C7295 /* TCPClient.h */,
+				2A90F333211F2CC7001C7295 /* TCPClient.cpp */,
+				2A90F329211F2CC7001C7295 /* threadpool.h */,
+				2A90F33A211F2CC7001C7295 /* threadpool.c */,
 				2A90F33E211F2CC7001C7295 /* net_iobuffer.cpp */,
 				2A90F33F211F2CC7001C7295 /* net_iobuffer.h */,
-				2A90F340211F2CC7001C7295 /* lock.cpp */,
-				2A90F341211F2CC7001C7295 /* queue.h */,
-				2A90F342211F2CC7001C7295 /* TCPClient.h */,
 			);
 			path = net;
 			sourceTree = "<group>";
@@ -403,6 +403,7 @@
 		2A90F320211F2C28001C7295 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = ./build/debug;
 				DEVELOPMENT_TEAM = 9HZXUTMSZT;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
@@ -413,6 +414,7 @@
 		2A90F321211F2C28001C7295 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = ./build/release;
 				DEVELOPMENT_TEAM = 9HZXUTMSZT;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;

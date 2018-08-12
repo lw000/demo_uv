@@ -31,6 +31,8 @@ static void echo_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf);
 static void echo_write(uv_write_t *req, int status);
 static void parse_cb(MSG* msg, void* userdata);
 
+static int counter = 0;
+
 void parse_cb(MSG* msg, void* userdata) {
     int main_cmd = msg->main_cmd;
     int assi_cmd = msg->assi_cmd;
@@ -38,7 +40,7 @@ void parse_cb(MSG* msg, void* userdata) {
     
     if (main_cmd == 100 && assi_cmd == 200) {
         reqest_a_data * request = reinterpret_cast<reqest_a_data*>(buf);
-        printf("main_id: %d, ass_id: %d, a: %d, b: %d\n", main_cmd, assi_cmd, request->a, request->b);
+        printf("[%d] main_id: %d, ass_id: %d, a: %d, b: %d\n", counter++, main_cmd, assi_cmd, request->a, request->b);
         
         uv_stream_t *stream = reinterpret_cast<uv_stream_t*>(userdata);
     
